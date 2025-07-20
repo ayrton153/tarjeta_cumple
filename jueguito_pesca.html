@@ -1,235 +1,379 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pesca Interactiva</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #87ceeb;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pesca Interactiva</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #87ceeb;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+      }
 
-    h1 {
-      margin: 10px 0;
-    }
+      h1 {
+        margin: 10px 0;
+      }
 
-    #game-container {
-      position: relative;
-      width: 100%;
-      max-width: 800px;
-      height: 500px;
-      margin: 0 auto;
-      background: linear-gradient(to top, #1e90ff, #87ceeb);
-      border: 4px solid #004080;
-      overflow: hidden;
-    }
+      #intro-screen, #end-modal {
+        padding: 5%;
+        max-width: 600px;
+        margin: 40px auto;
+        background: #cce7ff;
+        border-radius: 12px;
+        border: 2px solid #004080;
+        position: relative;
+        z-index: 20;
+      }
 
-    #fish-container {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-    }
+      #game-container {
+        position: relative;
+        width: 100%;
+        max-width: 800px;
+        height: 500px;
+        margin: 0 auto;
+        background: linear-gradient(to top, #1e90ff, #87ceeb);
+        border: 4px solid #004080;
+        overflow: hidden;
+        display: none; /* oculto al inicio */
+        z-index: 10;
+      }
 
-    .fish {
-      position: absolute;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      color: white;
-      font-weight: bold;
-      animation: swim linear forwards;
-    }
+      #fish-container {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-image: url("https://www.gifsanimados.org/data/media/1513/mar-y-oceano-imagen-animada-0008.gif");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        z-index: 1; /* debajo */
+      }
 
-    @keyframes swim {
-      from { transform: translateX(-100px); }
-      to { transform: translateX(900px); }
-    }
+      .fish {
+        position: absolute;
+        display: block;
+        animation: swim linear forwards;
+      }
 
-    #hook {
-      position: absolute;
-      width: 4px;
-      background-color: black;
-      left: 50%;
-      top: 0;
-      transform: translateX(-50%);
-      height: 0;
-    }
+      @keyframes swim {
+        from {
+          transform: translateX(-100px);
+        }
+        to {
+          transform: translateX(900px);
+        }
+      }
 
-    #hook-tip {
-      width: 12px;
-      height: 12px;
-      background: red;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      border-radius: 50%;
-      display: none;
-    }
+      #hook {
+        position: absolute;
+        width: 4px;
+        background-color: black;
+        left: 50%;
+        top: 0;
+        transform: translateX(-50%);
+        height: 0;
+        z-index: 10; /* encima */
+      }
 
-    #score {
-      font-size: 24px;
-      font-weight: bold;
-      margin: 10px 0;
-    }
+      #hook-tip {
+        width: 12px;
+        height: 12px;
+        background: red;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 50%;
+        display: none;
+      }
 
-    #fish-button {
-      padding: 10px 20px;
-      font-size: 18px;
-      background-color: #004080;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
+      #score {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 10px 0;
+      }
 
-    #fish-button:active {
-      background-color: #002040;
-    }
-  </style>
-</head>
-<body>
-  <div style="padding: 5%;">
+      #timer {
+        font-size: 20px;
+        font-weight: bold;
+        margin: 10px 0;
+        color: #004080;
+      }
 
-  <h1>🎣 Juego de Pesca</h1>
-  <div id="game-container">
-    <div id="hook"><div id="hook-tip"></div></div>
-    <div id="fish-container"></div>
-  </div>
-  <div id="score">Puntaje: 0</div>
-  <button id="fish-button">🎯 Pescar</button>
-  </div>
+      button {
+        padding: 10px 20px;
+        font-size: 18px;
+        background-color: #004080;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-top: 15px;
+      }
 
-  <script>
-    const fishContainer = document.getElementById("fish-container");
-    const hook = document.getElementById("hook");
-    const hookTip = document.getElementById("hook-tip");
-    const scoreDisplay = document.getElementById("score");
-    const fishButton = document.getElementById("fish-button");
+      button:active {
+        background-color: #002040;
+      }
 
-    let score = 0;
-    let hookActive = false;
+      ul {
+        list-style: none;
+        padding-left: 0;
+      }
 
-    const fishTypes = [
-      { name: "Sardina", color: "#5DADE2", size: 30, points: 5, speed: 10 },
-      { name: "Trucha", color: "#58D68D", size: 40, points: 10, speed: 8 },
-      { name: "Pez Globo", color: "#F4D03F", size: 50, points: 15, speed: 7 },
-      { name: "Atún", color: "#AF7AC5", size: 60, points: 20, speed: 6 },
-      { name: "Tiburón", color: "#E74C3C", size: 70, points: 30, speed: 5 },
-    ];
+      /* Modal fondo oscuro */
+      #modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0,0,0,0.5);
+        display: none;
+        z-index: 15;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="intro-screen">
+      <h1>🎣 Bienvenido al Juego de Pesca 🎣</h1>
+      <p><strong>Cómo jugar:</strong></p>
+      <p>
+        Presiona el botón <b>Pescar</b> o la barra espaciadora para lanzar el
+        anzuelo. Intenta atrapar los peces para ganar puntos.
+      </p>
+      <p><strong>Valor de cada pez:</strong></p>
+      <ul id="fish-list" style="display:flex; justify-content:center; flex-wrap: wrap; gap: 15px; padding-left: 0;"></ul>
+      <button id="start-button">Comenzar</button>
+    </div>
 
-    setInterval(spawnFish, 1500);
+    <div style="padding: 5%;">
+      <div id="game-container">
+        <div id="hook"><div id="hook-tip"></div></div>
+        <div id="fish-container"></div>
+      </div>
+      <div id="score" style="display:none">Puntaje: 0</div>
+      <div id="timer" style="display:none">Tiempo: 60s</div>
+      <button id="fish-button" style="display:none">🎯 Pescar</button>
+    </div>
 
-    function spawnFish() {
-      const fish = fishTypes[Math.floor(Math.random() * fishTypes.length)];
-      const fishElem = document.createElement("div");
+    <!-- Modal para fin de juego -->
+    <div id="modal-backdrop"></div>
+    <div id="end-modal" style="display:none;">
+      <h1>⏰ ¡Tiempo Terminado! ⏰</h1>
+      <p id="final-score-text"></p>
+      <button id="close-modal">Volver al inicio</button>
+    </div>
 
-      fishElem.classList.add("fish");
-      fishElem.style.width = `${fish.size}px`;
-      fishElem.style.height = `${fish.size}px`;
-      fishElem.style.backgroundColor = fish.color;
-      fishElem.style.top = `${Math.random() * 90}%`;
-      fishElem.style.animationDuration = `${fish.speed}s`;
-      fishElem.dataset.points = fish.points;
+    <script>
+      const fishTypes = [
+        { name: "Sardina", img: "img/1.png", size: 30, points: 5, speed: 10 },
+        { name: "Trucha", img: "img/2.png", size: 40, points: 10, speed: 8 },
+        { name: "Pez Globo", img: "img/4.png", size: 50, points: 15, speed: 7 },
+        { name: "Atún", img: "img/5.png", size: 60, points: 20, speed: 6 },
+        { name: "Tiburón", img: "img/7.png", size: 70, points: 30, speed: 5 },
+      ];
 
-      fishContainer.appendChild(fishElem);
+      const introScreen = document.getElementById("intro-screen");
+      const startButton = document.getElementById("start-button");
+      const gameContainer = document.getElementById("game-container");
+      const fishContainer = document.getElementById("fish-container");
+      const hook = document.getElementById("hook");
+      const hookTip = document.getElementById("hook-tip");
+      const scoreDisplay = document.getElementById("score");
+      const fishButton = document.getElementById("fish-button");
+      const timerDisplay = document.getElementById("timer");
 
-      setTimeout(() => {
-        if (fishElem.parentNode) fishElem.remove();
-      }, fish.speed * 1000);
-    }
+      const modalBackdrop = document.getElementById("modal-backdrop");
+      const endModal = document.getElementById("end-modal");
+      const finalScoreText = document.getElementById("final-score-text");
+      const closeModalBtn = document.getElementById("close-modal");
 
-    function dropHook() {
-      if (hookActive) return;
-      hookActive = true;
+      let score = 0;
+      let hookActive = false;
+      let spawnInterval;
+      let gameTime = 60; // segundos
+      let timerInterval;
+      let fishCaught = 0;
 
-      let height = 0;
-      const maxHeight = 450;
-      const speed = 10;
+      // Mostrar lista de peces en la guía con imagen y puntos
+      const fishList = document.getElementById("fish-list");
+      fishTypes.forEach(fish => {
+        const li = document.createElement("li");
+        li.style.listStyle = "none";
+        li.style.textAlign = "center";
+        li.style.width = "100px";
 
-      function extend() {
-        if (!hookActive) return;
+        const img = document.createElement("img");
+        img.src = fish.img;
+        img.alt = fish.name;
+        img.style.width = "60px";
+        img.style.height = "auto";
+        img.style.display = "block";
+        img.style.margin = "0 auto 5px";
 
-        if (height < maxHeight) {
-          height += speed;
-          hook.style.height = height + "px";
-          hookTip.style.display = "block";
-          hookTip.style.top = (height - 5) + "px";
+        const text = document.createElement("span");
+        text.textContent = `${fish.points} pts`;
 
-          if (checkCatch()) {
-            retractHook();
-            return;
+        li.appendChild(img);
+        li.appendChild(text);
+        fishList.appendChild(li);
+      });
+
+      startButton.addEventListener("click", () => {
+        introScreen.style.display = "none";
+        gameContainer.style.display = "block";
+        scoreDisplay.style.display = "block";
+        fishButton.style.display = "inline-block";
+        timerDisplay.style.display = "block";
+
+        score = 0;
+        fishCaught = 0;
+        gameTime = 60;
+        scoreDisplay.textContent = `Puntaje: ${score}`;
+        timerDisplay.textContent = `Tiempo: ${gameTime}s`;
+
+        spawnInterval = setInterval(spawnFish, 1500);
+
+        timerInterval = setInterval(() => {
+          gameTime--;
+          timerDisplay.textContent = `Tiempo: ${gameTime}s`;
+
+          if (gameTime <= 0) {
+            endGame();
           }
+        }, 1000);
+      });
 
-          requestAnimationFrame(extend);
-        } else {
-          retractHook();
-        }
+      function spawnFish() {
+        const fish = fishTypes[Math.floor(Math.random() * fishTypes.length)];
+        const fishElem = document.createElement("img");
+
+        fishElem.src = fish.img;
+        fishElem.classList.add("fish");
+        fishElem.style.width = `${fish.size}px`;
+        fishElem.style.height = "auto";
+        fishElem.style.top = `${Math.random() * 90}%`;
+        fishElem.style.animationDuration = `${fish.speed}s`;
+        fishElem.dataset.points = fish.points;
+
+        fishContainer.appendChild(fishElem);
+
+        setTimeout(() => {
+          if (fishElem.parentNode) fishElem.remove();
+        }, fish.speed * 1000);
       }
 
-      requestAnimationFrame(extend);
-    }
+      function dropHook() {
+        if (hookActive) return;
+        if (gameTime <= 0) return;
+        hookActive = true;
 
-    function retractHook() {
-      let height = parseInt(hook.style.height);
-      const speed = 15;
+        let height = 0;
+        const maxHeight = 450;
+        const speed = 10;
 
-      function retract() {
-        if (height > 0) {
-          height -= speed;
-          hook.style.height = height + "px";
-          hookTip.style.top = (height - 5) + "px";
-          requestAnimationFrame(retract);
-        } else {
-          hook.style.height = "0px";
-          hookTip.style.display = "none";
-          hookActive = false;
+        function extend() {
+          if (!hookActive) return;
+
+          if (height < maxHeight) {
+            height += speed;
+            hook.style.height = height + "px";
+            hookTip.style.display = "block";
+            hookTip.style.top = height - 5 + "px";
+
+            if (checkCatch()) {
+              retractHook();
+              return;
+            }
+
+            requestAnimationFrame(extend);
+          } else {
+            retractHook();
+          }
         }
+
+        requestAnimationFrame(extend);
       }
 
-      requestAnimationFrame(retract);
-    }
+      function retractHook() {
+        let height = parseInt(hook.style.height);
+        const speed = 15;
 
-    function checkCatch() {
-      const hookRect = hookTip.getBoundingClientRect();
-      const fishes = document.querySelectorAll(".fish");
-
-      for (let fish of fishes) {
-        const fishRect = fish.getBoundingClientRect();
-
-        const overlap = !(
-          hookRect.right < fishRect.left ||
-          hookRect.left > fishRect.right ||
-          hookRect.bottom < fishRect.top ||
-          hookRect.top > fishRect.bottom
-        );
-
-        if (overlap) {
-          const points = parseInt(fish.dataset.points);
-          score += points;
-          scoreDisplay.textContent = `Puntaje: ${score}`;
-          fish.remove();
-          return true;
+        function retract() {
+          if (height > 0) {
+            height -= speed;
+            hook.style.height = height + "px";
+            hookTip.style.top = height - 5 + "px";
+            requestAnimationFrame(retract);
+          } else {
+            hook.style.height = "0px";
+            hookTip.style.display = "none";
+            hookActive = false;
+          }
         }
+
+        requestAnimationFrame(retract);
       }
 
-      return false;
-    }
+      function checkCatch() {
+        const hookRect = hookTip.getBoundingClientRect();
+        const fishes = document.querySelectorAll(".fish");
 
-    // Soporte para espacio
-    document.addEventListener("keydown", (e) => {
-      if (e.key === " ") dropHook();
-    });
+        for (let fish of fishes) {
+          const fishRect = fish.getBoundingClientRect();
 
-    // Soporte táctil y clic
-    fishButton.addEventListener("click", dropHook);
-    document.getElementById("game-container").addEventListener("touchstart", () => dropHook());
-    document.getElementById("game-container").addEventListener("click", () => dropHook());
-  </script>
-</body>
+          const overlap = !(
+            hookRect.right < fishRect.left ||
+            hookRect.left > fishRect.right ||
+            hookRect.bottom < fishRect.top ||
+            hookRect.top > fishRect.bottom
+          );
+
+          if (overlap) {
+            const points = parseInt(fish.dataset.points);
+            score += points;
+            fishCaught++;
+            scoreDisplay.textContent = `Puntaje: ${score}`;
+            fish.remove();
+            return true;
+          }
+        }
+
+        return false;
+      }
+
+      function endGame() {
+        clearInterval(spawnInterval);
+        clearInterval(timerInterval);
+
+        fishButton.style.display = "none";
+        timerDisplay.style.display = "none";
+
+        // Mostrar modal con resultados
+        finalScoreText.textContent = `Puntaje final: ${score}\nPeces atrapados: ${fishCaught}`;
+        modalBackdrop.style.display = "block";
+        endModal.style.display = "block";
+      }
+
+      closeModalBtn.addEventListener("click", () => {
+        modalBackdrop.style.display = "none";
+        endModal.style.display = "none";
+
+        // Reset para jugar de nuevo
+        introScreen.style.display = "block";
+        gameContainer.style.display = "none";
+        scoreDisplay.style.display = "none";
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === " ") dropHook();
+      });
+
+      fishButton.addEventListener("click", dropHook);
+      gameContainer.addEventListener("touchstart", () => dropHook());
+      gameContainer.addEventListener("click", () => dropHook());
+    </script>
+  </body>
 </html>
