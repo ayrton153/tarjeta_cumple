@@ -123,16 +123,26 @@
       }
 
       /* Modal fondo oscuro */
-      #modal-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: rgba(0,0,0,0.5);
-        display: none;
-        z-index: 15;
-      }
+   
+
+/* Modal en sí */
+#end-modal {
+  position: fixed; /* fixed para que quede sobre todo */
+  top: 50%; 
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 2rem;
+  max-width: 400px;
+  width: 80%;
+  background: #cce7ff;
+  border-radius: 12px;
+  border: 2px solid #004080;
+  z-index: 10000; /* más alto que el fondo */
+  display: none;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  text-align: center;
+}
+
     </style>
   </head>
   <body>
