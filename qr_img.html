@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Feliz Cumpleaños</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Times New Roman", Times, serif;
+        background: linear-gradient(to right, #f2f1e8, #756836);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        text-align: center;
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 3rem;
+        color: black;
+        margin-bottom: 30px;
+      }
+
+      .imagen-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        padding: 15px;
+        width: 100%;
+        max-width: 350px;
+        margin-bottom: 30px;
+      }
+
+      .imagen-container img {
+        width: 100%;
+        border-radius: 15px;
+        height: auto;
+        display: block;
+      }
+
+      .boton-jugar {
+        background: #8c8157;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-size: 1.1rem;
+        border-radius: 30px;
+        cursor: pointer;
+        transition: background 0.3s;
+        font-family: "Times New Roman", Times, serif;
+        margin-bottom: 20px;
+      }
+
+      .boton-jugar:hover {
+        background: #e85c50;
+      }
+
+      .border-card {
+        padding: 5%;
+        border: 4px solid #b6a24e;
+        border-radius: 5px;
+      }
+
+      /* 📱 Media query para pantallas pequeñas */
+      @media (max-width: 480px) {
+        h1 {
+            font-size: 2.2rem;
+        }
+
+        .boton-jugar {
+          padding: 12px 25px;
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="border-card">
+      <h1>Mis 60!</h1>
+
+      <div class="imagen-container">
+        <img src="pelu.jpg" alt="Imagen de cumpleaños" />
+      </div>
+
+      <a href="jueguito_pesca.html">
+        <button class="boton-jugar">🎉 Jugar</button>
+      </a>
+    </div>
+  </body>
+</html>
